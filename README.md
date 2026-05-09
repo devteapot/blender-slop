@@ -1,25 +1,21 @@
 # Blender SLOP
 
-Blender SLOP ports [BlenderMCP](https://github.com/ahujasid/blender-mcp) into a [SLOP](https://github.com/devteapot/slop/tree/main/spec) provider. It keeps BlenderMCP's existing Blender add-on socket protocol, then projects Blender state as a semantic SLOP tree with contextual affordances.
+Blender SLOP is a native Blender add-on that exposes Blender as a [SLOP](https://github.com/devteapot/slop/tree/main/spec) provider. It uses [BlenderMCP](https://github.com/ahujasid/blender-mcp) as reference material for useful scene-control behaviors, but it does not run an MCP server, call a BlenderMCP socket, or depend on BlenderMCP internally.
 
-The provider is implemented in Python with the published [`slop-ai`](https://pypi.org/project/slop-ai/) SDK.
+The add-on runs inside Blender, imports the published [`slop-ai`](https://pypi.org/project/slop-ai/) Python SDK, and serves SLOP over WebSocket.
 
 ## What It Exposes
 
-- Connection status for the BlenderMCP socket add-on.
-- Scene summary, object count, material count, and the first objects returned by BlenderMCP.
-- Object-level `inspect` affordances for detailed material, mesh, transform, and bounding-box data.
-- Scene affordances for refresh, viewport capture, and arbitrary Blender Python execution.
-- Poly Haven, Sketchfab, Hyper3D Rodin, and Hunyuan3D affordances when the Blender add-on supports them.
-- A raw command escape hatch for BlenderMCP commands that are not yet modeled as first-class SLOP nodes.
+- SLOP server status and connection URL.
+- Scene summary, frame, object count, materials, selected objects, active object, and camera.
+- Object nodes with transform, visibility, selection, dimensions, and material state.
+- Object affordances for inspect, select, transform, set material, and delete.
+- Scene affordances for viewport capture and arbitrary Blender Python execution.
+- Object collection affordance for creating mesh primitives.
 
 ## Install
 
-```bash
-uv tool install .
-```
-
-For local development:
+For local development outside Blender:
 
 ```bash
 uv sync --extra dev
@@ -29,37 +25,24 @@ uv run pytest
 ## Blender Setup
 
 1. Open Blender.
-2. Install `addon/blender_slop_addon.py` from this repository through `Edit > Preferences > Add-ons > Install...`.
-3. Enable the add-on.
-4. In the 3D View sidebar, open the `BlenderMCP` tab and click `Connect to Claude`.
+2. Install the `addon/blender_slop_addon` folder as a Blender add-on. To make an installable zip:
 
-The button name comes from upstream BlenderMCP, but this provider talks to the same local socket.
+   ```bash
+   cd addon
+   zip -r ../blender_slop_addon.zip blender_slop_addon
+   ```
 
-By default the add-on listens on `localhost:9876`. Override this provider with:
+   Then use `Edit > Preferences > Add-ons > Install...`.
+3. Enable `Interface: Blender SLOP`.
+4. In the 3D View sidebar, open the `Blender SLOP` tab.
+5. Click `Install Dependencies` once to install `slop-ai[websocket]` into Blender's Python environment.
+6. Restart Blender or disable and re-enable the add-on if Blender cannot import the dependency immediately.
+7. Click `Start SLOP Provider`.
 
-```bash
-export BLENDER_HOST=localhost
-export BLENDER_PORT=9876
-```
+By default the provider listens on:
 
-## Run As A SLOP Provider
-
-Stdio transport:
-
-```bash
-blender-slop stdio
-```
-
-WebSocket transport:
-
-```bash
-blender-slop websocket --host 127.0.0.1 --port 8765 --path /slop
-```
-
-If the provider should start before Blender is ready:
-
-```bash
-blender-slop --no-connect-on-start websocket
+```text
+ws://127.0.0.1:8765/slop
 ```
 
 ## State Shape
@@ -73,22 +56,19 @@ The root provider id is `blender`. The main app node is:
 Useful paths include:
 
 ```text
-/blender/workspace/connection
 /blender/workspace/scene
 /blender/workspace/scene/objects
-/blender/workspace/integrations/polyhaven
-/blender/workspace/integrations/sketchfab
-/blender/workspace/integrations/hyper3d
-/blender/workspace/integrations/hunyuan3d
-/blender/workspace/commands
+/blender/workspace/materials
+/blender/workspace/server
+/blender/workspace/last_result
 ```
 
-All actions are SLOP affordances attached to the node they operate on. Dangerous actions such as `execute_python`, asset downloads, model imports, and raw commands are marked `dangerous`.
+All actions are SLOP affordances attached to the node they operate on. Dangerous actions such as `execute_python`, object transforms, material edits, primitive creation, and deletion are marked `dangerous`.
 
 ## Security Notes
 
-This provider can run arbitrary Python inside Blender because BlenderMCP exposes that capability. Treat SLOP consumers as untrusted, review dangerous affordances before invocation, and save Blender work before running destructive scene operations.
+This provider can run arbitrary Python inside Blender because it intentionally exposes that SLOP affordance. Treat SLOP consumers as untrusted, review dangerous affordances before invocation, and save Blender work before running destructive scene operations.
 
 ## Attribution
 
-The Blender add-on copy in `addon/blender_slop_addon.py` comes from [ahujasid/blender-mcp](https://github.com/ahujasid/blender-mcp), licensed MIT. See `NOTICE`.
+BlenderMCP was used as reference material and is MIT licensed. This repository does not vendor BlenderMCP code. See `NOTICE`.

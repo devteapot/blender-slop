@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "blender-slop"
 version = "0.1.0"
-description = "A SLOP provider for Blender using the BlenderMCP add-on socket protocol."
+description = "A native Blender add-on that exposes Blender as a SLOP provider."
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
@@ -22,15 +22,11 @@ dev = [
   "pytest>=8.0",
 ]
 
-[project.scripts]
-blender-slop = "blender_slop.cli:main"
-
 [tool.hatch.build.targets.wheel]
-packages = ["src/blender_slop"]
+packages = ["addon/blender_slop_addon"]
 
 [tool.hatch.build.targets.sdist]
 include = [
-  "src",
   "tests",
   "addon",
   "README.md",
