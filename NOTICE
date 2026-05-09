@@ -1,0 +1,11 @@
+This project ports the socket-facing behavior of BlenderMCP to a SLOP provider.
+
+BlenderMCP is licensed under the MIT License:
+
+Copyright (c) 2025 Siddharth Ahuja
+
+The vendored Blender add-on in addon/blender_slop_addon.py is copied from:
+https://github.com/ahujasid/blender-mcp
+
+The SLOP provider uses the published slop-ai Python SDK:
+https://pypi.org/project/slop-ai/

@@ -1,0 +1,44 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "blender-slop"
+version = "0.1.0"
+description = "A SLOP provider for Blender using the BlenderMCP add-on socket protocol."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [
+  { name = "Codex" }
+]
+keywords = ["blender", "slop", "ai", "3d", "provider"]
+dependencies = [
+  "slop-ai[websocket]>=0.2.0,<0.3.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+]
+
+[project.scripts]
+blender-slop = "blender_slop.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/blender_slop"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "src",
+  "tests",
+  "addon",
+  "README.md",
+  "LICENSE",
+  "NOTICE",
+  "pyproject.toml",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
