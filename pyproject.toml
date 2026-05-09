@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "blender-slop"
-version = "0.1.0"
+version = "0.2.0"
 description = "A native Blender add-on that exposes Blender as a SLOP provider."
 readme = "README.md"
 requires-python = ">=3.10"

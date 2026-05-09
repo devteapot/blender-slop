@@ -7,11 +7,11 @@ The add-on runs inside Blender, imports the published [`slop-ai`](https://pypi.o
 ## What It Exposes
 
 - SLOP server status and connection URL.
-- Scene summary, frame, object count, materials, selected objects, active object, and camera.
-- Object nodes with transform, visibility, selection, dimensions, and material state.
-- Object affordances for inspect, select, transform, set material, and delete.
-- Scene affordances for viewport capture and arbitrary Blender Python execution.
-- Object collection affordance for creating mesh primitives.
+- Scene summary, timeline, render settings, world settings, collections, object count, materials, selected objects, active object, cameras, and lights.
+- Object nodes with transform, visibility, selection, dimensions, modifiers, material state, camera data, and light data.
+- Object affordances for inspect, select, rename, duplicate, visibility, transform, set material, add/apply modifier, keyframe transform, and delete.
+- Scene affordances for viewport capture, still render, render settings, frame/range control, world color, and arbitrary Blender Python execution.
+- Collection affordances for mesh primitive creation, file import, camera creation, light creation, collection creation, object moves, and material creation.
 
 ## Install
 
@@ -58,12 +58,24 @@ Useful paths include:
 ```text
 /blender/workspace/scene
 /blender/workspace/scene/objects
+/blender/workspace/scene/cameras
+/blender/workspace/scene/lights
+/blender/workspace/scene/collections
+/blender/workspace/scene/timeline
+/blender/workspace/scene/render
+/blender/workspace/scene/world
 /blender/workspace/materials
 /blender/workspace/server
 /blender/workspace/last_result
 ```
 
-All actions are SLOP affordances attached to the node they operate on. Dangerous actions such as `execute_python`, object transforms, material edits, primitive creation, and deletion are marked `dangerous`.
+All actions are SLOP affordances attached to the node they operate on. Dangerous actions such as `execute_python`, object transforms, material edits, primitive creation, importing, rendering, modifier application, keyframing, and deletion are marked `dangerous`.
+
+## Coverage
+
+BlenderMCP covers a compact tool surface: scene/object inspection, viewport screenshots, arbitrary code execution, and optional external asset/generation services for Poly Haven, Sketchfab, Hyper3D Rodin, and Hunyuan3D. Blender SLOP now covers those core Blender controls natively and adds first-class SLOP nodes for the major Blender work areas an AI needs for day-to-day scene work: objects, materials, cameras, lights, collections, timeline/animation, render settings, viewport capture, still rendering, file import, modifiers, and world settings.
+
+The external asset/generation services are not bundled as native provider features yet. They can still be reached through `execute_python` if the user has their own scripts or add-ons installed, and they are good candidates for future optional SLOP integration nodes.
 
 ## Security Notes
 

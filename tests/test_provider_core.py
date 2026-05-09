@@ -11,6 +11,10 @@ def object_actions(_name):
     return {"inspect": {"handler": noop, "label": "Inspect"}}
 
 
+def named_actions(_name):
+    return {"update": {"handler": noop, "label": "Update"}}
+
+
 def test_stable_id_is_slop_safe() -> None:
     node_id = stable_id("object", "Cube/With Weird~Chars")
     assert node_id.startswith("object_")
@@ -52,6 +56,17 @@ def test_workspace_descriptor_contains_native_affordances() -> None:
                 }
             ],
             "materials": [],
+            "collections": [{"name": "Collection", "object_count": 1, "child_count": 0, "objects": ["Cube"]}],
+            "timeline": {"frame": 1, "frame_start": 1, "frame_end": 250, "fps": 24},
+            "render": {
+                "engine": "BLENDER_EEVEE_NEXT",
+                "resolution_x": 1920,
+                "resolution_y": 1080,
+                "resolution_percentage": 100,
+                "fps": 24,
+                "filepath": "//",
+            },
+            "world": {"name": "World", "color": [0.05, 0.05, 0.05]},
         },
         "last_result": None,
         "last_error": None,
@@ -63,13 +78,35 @@ def test_workspace_descriptor_contains_native_affordances() -> None:
             "execute_python": noop,
             "capture_viewport": noop,
             "create_primitive": noop,
+            "import_file": noop,
+            "create_camera": noop,
+            "create_light": noop,
+            "create_collection": noop,
+            "move_object_to_collection": noop,
+            "set_frame": noop,
+            "set_frame_range": noop,
+            "set_render_settings": noop,
+            "render_still": noop,
+            "set_world_color": noop,
+            "create_material": noop,
         },
         object_actions,
+        named_actions,
+        named_actions,
+        named_actions,
     )
 
     scene = descriptor["children"]["scene"]
     objects = scene["children"]["objects"]
+    materials = descriptor["children"]["materials"]
     assert descriptor["props"]["status"] == "running"
     assert scene["actions"]["execute_python"]["dangerous"] is True
     assert objects["actions"]["create_primitive"]["params"]["primitive"]["enum"]
+    assert objects["actions"]["import_file"]["dangerous"] is True
+    assert scene["children"]["cameras"]["actions"]["create_camera"]["params"]["make_active"] == "boolean"
+    assert scene["children"]["lights"]["actions"]["create_light"]["params"]["light_type"]["enum"]
+    assert scene["children"]["timeline"]["actions"]["set_frame"]["idempotent"] is True
+    assert scene["children"]["render"]["actions"]["render_still"]["estimate"] == "slow"
+    assert scene["children"]["world"]["actions"]["set_world_color"]["params"]["rgba"]["type"] == "array"
+    assert materials["actions"]["create_material"]["params"]["name"] == "string"
     assert objects["items"][0]["props"]["name"] == "Cube"
